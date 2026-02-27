@@ -1,21 +1,34 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getAssets } from "@/lib/assetService";
+import { Asset } from "@/lib/assetService";
 
 export default function AssetPage() {
-  const assets = getAssets();
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getAssets();
+      setAssets(data as Asset[]);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <p>Đang tải...</p>;
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Quản lý tài sản</h1>
+      <h1>Quản lý tài sản</h1>
 
-      <Link href="/asset/create" className="text-blue-500">
-        + Tạo tài sản
-      </Link>
+      <Link href="/asset/create">+ Tạo tài sản</Link>
 
       {assets.map(a => (
-        <div key={a.id} className="border p-3 mt-2 rounded">
+        <div key={a.id}>
           <Link href={`/asset/${a.id}`}>
             {a.name} - {a.status}
           </Link>
