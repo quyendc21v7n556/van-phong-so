@@ -1,4 +1,4 @@
-import { getAssetById } from "@/lib/assetService";
+import { getAssetById, deleteAsset } from "@/lib/assetService";
 import Link from "next/link";
 
 export default function AssetDetail({
@@ -20,6 +20,26 @@ export default function AssetDetail({
         {asset.name}
       </h1>
       <p>Trạng thái: {asset.status}</p>
+
+      {/* 👇 THÊM 2 NÚT Ở ĐÂY */}
+      <div className="mt-4 space-x-4">
+        <Link
+          href={`/asset/${params.id}/edit`}
+          className="text-blue-500"
+        >
+          Sửa
+        </Link>
+
+        <button
+          onClick={() => {
+            deleteAsset(params.id);
+            window.location.href = "/asset";
+          }}
+          className="text-red-500"
+        >
+          Xóa
+        </button>
+      </div>
     </div>
   );
 }

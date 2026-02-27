@@ -23,3 +23,16 @@ export const getAssetById = (id: string) =>
 export const addAsset = (asset: Asset) => {
   assets.push(asset);
 };
+
+export const deleteAsset = (id: string) => {
+  const index = assets.findIndex(a => a.id === id);
+  if (index !== -1) {
+    assets.splice(index, 1);
+  }
+};
+export const updateAsset = (id: string, updatedData: Partial<Asset>) => {
+  const asset = assets.find(a => a.id === id);
+  if (asset) {
+    Object.assign(asset, updatedData);
+  }
+};
