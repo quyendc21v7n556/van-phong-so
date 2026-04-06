@@ -2,7 +2,17 @@
 
 import React from "react";
 import Image from "next/image";
+import RealTimeDate from "@/components/RealTimeDate";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { UserOptions } from "jspdf-autotable";
 
+interface jsPDFWithPlugin extends jsPDF {
+  autoTable: (options: UserOptions) => jsPDF;
+  lastAutoTable: {
+    finalY: number;
+  };
+}
 export default function Dashboard() {
   const summaryCards = [
     {
@@ -57,6 +67,50 @@ export default function Dashboard() {
     },
   ];
 
+  // Hàm xử lý xuất PDF
+  const handleExportPDF = () => {
+    // Ép kiểu doc sang giao diện đã có autoTable
+    const doc = new jsPDF() as jsPDFWithPlugin;
+    const now = new Date().toLocaleString("vi-VN");
+
+    doc.setFontSize(18);
+    doc.text("BAO CAO HOAT DONG - VAN PHONG SO", 14, 20);
+
+    doc.setFontSize(11);
+    doc.text(`Ngay xuat: ${now}`, 14, 30);
+
+    doc.text("1. Thong ke nhanh:", 14, 45);
+    const summaryData = summaryCards.map((card) => [
+      card.title,
+      `${card.count} / ${card.total}`,
+    ]);
+
+    // Gọi trực tiếp, không dùng (doc as any) nữa
+    doc.autoTable({
+      startY: 50,
+      head: [["Hang muc", "So luong"]],
+      body: summaryData,
+      theme: "grid",
+    });
+
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.text("2. Cac hoat dong gan day:", 14, finalY);
+    const activityData = recentActivities.map((act) => [
+      act.time,
+      act.task,
+      act.status,
+    ]);
+
+    doc.autoTable({
+      startY: finalY + 5,
+      head: [["Thoi gian", "Cong viec", "Trang thai"]],
+      body: activityData,
+      headStyles: { fillColor: [51, 65, 85] },
+    });
+
+    doc.save(`Bao_cao_Van_Phong_So_${new Date().toLocaleDateString()}.pdf`);
+  };
+
   return (
     <div className="relative min-h-screen w-full p-4 md:p-8">
       <div className="fixed inset-0 -z-10">
@@ -67,7 +121,6 @@ export default function Dashboard() {
           priority
           className="object-cover"
         />
-
         <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px]"></div>
       </div>
 
@@ -77,12 +130,13 @@ export default function Dashboard() {
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
               Chào buổi sáng, Quản trị viên!
             </h1>
-            <p className="text-slate-700 mt-1 font-medium">
-              Hôm nay là Thứ Hai, ngày 6 tháng 4 năm 2026.
-            </p>
+            <RealTimeDate />
           </div>
-          <button className="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-all shadow-lg">
-            Xuất báo cáo ngày
+          <button
+            onClick={handleExportPDF}
+            className="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 transition-all shadow-lg active:scale-95"
+          >
+            📊 Xuất báo cáo ngày
           </button>
         </div>
 
@@ -117,7 +171,6 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Khu vực nội dung chính */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-2xl border border-white shadow-xl p-6">
             <div className="flex justify-between items-center mb-6">
