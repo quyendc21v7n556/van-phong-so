@@ -4,15 +4,10 @@ import React from "react";
 import Image from "next/image";
 import RealTimeDate from "@/components/RealTimeDate";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
-import { UserOptions } from "jspdf-autotable";
+import autoTable from "jspdf-autotable";
+// Đảm bảo file Roboto-Regular.ts nằm cùng thư mục với file này
+import { addRobotoFont, jsPDFWithPlugin } from "./Roboto-Regular";
 
-interface jsPDFWithPlugin extends jsPDF {
-  autoTable: (options: UserOptions) => jsPDF;
-  lastAutoTable: {
-    finalY: number;
-  };
-}
 export default function Dashboard() {
   const summaryCards = [
     {
@@ -67,48 +62,55 @@ export default function Dashboard() {
     },
   ];
 
-  // Hàm xử lý xuất PDF
   const handleExportPDF = () => {
-    // Ép kiểu doc sang giao diện đã có autoTable
-    const doc = new jsPDF() as jsPDFWithPlugin;
-    const now = new Date().toLocaleString("vi-VN");
+    try {
+      const doc = new jsPDF() as jsPDFWithPlugin;
 
-    doc.setFontSize(18);
-    doc.text("BAO CAO HOAT DONG - VAN PHONG SO", 14, 20);
+      // Nạp font tiếng Việt
+      addRobotoFont(doc);
+      doc.setFont("Roboto");
 
-    doc.setFontSize(11);
-    doc.text(`Ngay xuat: ${now}`, 14, 30);
+      // Tiêu đề
+      doc.setFontSize(18);
+      doc.text("BÁO CÁO HOẠT ĐỘNG - VĂN PHÒNG SỐ", 14, 20);
 
-    doc.text("1. Thong ke nhanh:", 14, 45);
-    const summaryData = summaryCards.map((card) => [
-      card.title,
-      `${card.count} / ${card.total}`,
-    ]);
+      const summaryData = summaryCards.map((card) => [
+        card.title,
+        `${card.count} / ${card.total}`,
+      ]);
 
-    // Gọi trực tiếp, không dùng (doc as any) nữa
-    doc.autoTable({
-      startY: 50,
-      head: [["Hang muc", "So luong"]],
-      body: summaryData,
-      theme: "grid",
-    });
+      autoTable(doc, {
+        startY: 30,
+        head: [["Hạng mục", "Số lượng"]],
+        body: summaryData,
+        styles: { font: "Roboto" },
+        theme: "grid",
+      });
 
-    const finalY = doc.lastAutoTable.finalY + 10;
-    doc.text("2. Cac hoat dong gan day:", 14, finalY);
-    const activityData = recentActivities.map((act) => [
-      act.time,
-      act.task,
-      act.status,
-    ]);
+      // Lấy vị trí an toàn cho bảng tiếp theo
+      const nextY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 15 : 100;
+      doc.text("Hoạt động gần đây:", 14, nextY - 5);
 
-    doc.autoTable({
-      startY: finalY + 5,
-      head: [["Thoi gian", "Cong viec", "Trang thai"]],
-      body: activityData,
-      headStyles: { fillColor: [51, 65, 85] },
-    });
+      const activityData = recentActivities.map((act) => [
+        act.time,
+        act.task,
+        act.status,
+      ]);
 
-    doc.save(`Bao_cao_Van_Phong_So_${new Date().toLocaleDateString()}.pdf`);
+      autoTable(doc, {
+        startY: nextY,
+        head: [["Thời gian", "Công việc", "Trạng thái"]],
+        body: activityData,
+        styles: { font: "Roboto" },
+      });
+
+      doc.save("Bao_cao_Van_Phong_So.pdf");
+    } catch (err) {
+      console.error("Lỗi PDF:", err);
+      alert(
+        "Nút bấm đã nhận lệnh nhưng code xử lý đang có lỗi. Hãy kiểm tra file Roboto-Regular.ts",
+      );
+    }
   };
 
   return (
