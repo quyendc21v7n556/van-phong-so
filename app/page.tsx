@@ -83,7 +83,16 @@ export default function Dashboard() {
         startY: 30,
         head: [["Hạng mục", "Số lượng"]],
         body: summaryData,
-        styles: { font: "Roboto" },
+        // Thêm/Sửa phần styles như dưới đây:
+        styles: {
+          font: "Roboto",
+          fontStyle: "normal",
+        },
+        headStyles: {
+          font: "Roboto",
+          fontStyle: "normal",
+          fillColor: [20, 184, 166],
+        },
         theme: "grid",
       });
 
@@ -101,7 +110,16 @@ export default function Dashboard() {
         startY: nextY,
         head: [["Thời gian", "Công việc", "Trạng thái"]],
         body: activityData,
-        styles: { font: "Roboto" },
+        // Thêm/Sửa phần styles như dưới đây:
+        styles: {
+          font: "Roboto",
+          fontStyle: "normal",
+        },
+        headStyles: {
+          font: "Roboto",
+          fontStyle: "normal",
+          fillColor: [31, 114, 173],
+        },
       });
 
       doc.save("Bao_cao_Van_Phong_So.pdf");
