@@ -10,8 +10,6 @@ const handler = NextAuth({
         password: { label: "Mật khẩu", type: "password" }
       },
       async authorize(credentials) {
-        // Đây là nơi bạn kiểm tra user trong database
-        // Ví dụ tạm thời: admin / 123456
         if (credentials?.username === "admin" && credentials?.password === "123456") {
           return { id: "1", name: "Quản trị viên", email: "admin@vanphongso.com" };
         }

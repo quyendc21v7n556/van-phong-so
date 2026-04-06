@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "./context/AppContext";
 import Image from "next/image";
-// Sửa đường dẫn: dùng ../ để đi ra ngoài app rồi vào components
 import AuthProvider from "../components/AuthProvider"; 
 import Navbar from "../components/Navbar";
 
@@ -39,10 +38,10 @@ export default function RootLayout({ children }) {
           <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px]"></div>
         </div>
 
-        {/* Bọc Provider để quản lý đăng nhập và dữ liệu */}
+       
         <AuthProvider>
           <AppProvider>
-            {/* Thanh Navbar chứa nút Đăng xuất sẽ hiện ở mọi trang */}
+          
             <Navbar /> 
 
             <main className="relative z-10">
